@@ -1,0 +1,69 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+  - vars.yml
+
+  tasks:
+
+    - name: ansible install ( may be already installed )
+      yum:
+        name: ansible
+        state: latest
+
+    - name: add a admin group
+      group: name=admin state=present
+
+    - name: add a new user
+      user:
+        name: "{{ item.name }}"
+        uid: "{{ item.uid }}"
+        password: "{{ item.password | password_hash('sha512') }}"
+        group: admin
+        groups: wheel
+        state: present
+      with_items:
+      - "{{ users }}"
+
+    - name: create .ssh directory
+      file:
+        path: /home/{{ item.name }}/.ssh
+        state: directory
+        group: "admin"
+        owner: "{{ item.name }}"
+        mode: 0700
+      with_items:
+      - "{{ users }}"
+    
+    - name: create .ssh directory (root)
+      file:
+        path: /root/.ssh
+        state: directory
+        mode: 0700
+
+    - name: install private key file
+      copy:
+        src: publickey/id_rsa
+        dest: /home/{{ item.name }}/.ssh/id_rsa
+        group: "admin"
+        owner: "{{ item.name }}"
+        mode: 0700
+      with_items:
+      - "{{ users }}"
+    
+    - name: install private key file to root
+      copy:
+        src: publickey/id_rsa
+        dest: /root/.ssh/id_rsa
+        group: "root"
+        owner: "root"
+        mode: 0700
+
+    - name: copy hosts files
+      copy:
+        src: hosts/hosts
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: 0644 
+

@@ -1,0 +1,5 @@
+users:
+  - { name: 'devops1', uid: '1011', password: 'password' }
+  - { name: 'devops2', uid: '1012', password: 'password' }
+  - { name: 'devops3', uid: '1013', password: 'password' }
+  - { name: 'devops4', uid: '1014', password: 'password' }

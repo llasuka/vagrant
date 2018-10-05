@@ -1,0 +1,22 @@
+# デフォルトの文字コードを指定
+defutf8 on
+defencoding utf8
+encoding utf8 utf8
+
+# おせっかい系の通知OFF
+startup_message off
+vbell off
+
+# スクロール行数
+defscrollback 10000
+
+# マウススクロール有効
+termcapinfo xterm* ti@:te@
+
+# バッファ終了時に消す
+altscreen on 
+
+# ステータスライン表示
+hardstatus alwayslastline "%?%h%:#%n %t @%H)%? %{= dd}%-035= %{= wB}%l %Y-%m-%d %02c"
+caption always "%{=r dd}%-Lw%40L>%?%F%{+b kG}%:[%{=r dd}%? %n%f %t %?%F%{-}%:]%?%+Lw"
+

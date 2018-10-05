@@ -1,0 +1,65 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+  - vars.yml
+
+  tasks:
+
+    - name: add a admin group
+      group: name=admin state=present
+
+    - name: add a new user
+      user:
+        name: "{{ item.name }}"
+        uid: "{{ item.uid }}"
+        password: "{{ item.password | password_hash('sha512') }}"
+        group: admin
+        groups: wheel
+        state: present
+      with_items:
+      - "{{ users }}"
+
+    - name: create .ssh directory
+      file:
+        path: /home/{{ item.name }}/.ssh
+        state: directory
+        group: "admin"
+        owner: "{{ item.name }}"
+        mode: 0700
+      with_items:
+      - "{{ users }}"
+    
+    - name: create .ssh directory (root)
+      file:
+        path: /root/.ssh
+        state: directory
+        mode: 0700
+
+    - name: install public key file
+      copy:
+        src: /home/asuka/vagrant/publickey/id_rsa.pub
+        dest: /home/{{ item.name }}/.ssh/authorized_keys
+      with_items:
+      - "{{ users }}"
+    
+    - name: install public key file to root
+      copy:
+        src: /home/asuka/vagrant/publickey/id_rsa.pub
+        dest: /root/.ssh/authorized_keys
+
+    - name: copy hosts files
+      copy:
+        src: /home/asuka/vagrant/hosts/hosts
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: sudo setting no passwd
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%wheel\s'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+  
