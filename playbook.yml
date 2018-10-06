@@ -6,10 +6,44 @@
 
   tasks:
 
-    - name: ansible install ( may be already installed )
+    - name: package install
       yum:
-        name: ansible
+        name: "{{ item }}"
         state: latest
+      with_items: "{{ packages }}"
+
+    - name: start service
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      with_items: " {{ service }}"
+
+    - name: add firewalld service
+      firewalld:
+        immediate: true
+        permanent: true
+        service: http
+        state: enabled
+
+    - name: create repo directory
+      file:
+        path: /var/www/html/repo
+        state: directory
+        mode: 0755
+
+    - name: copy rpm package
+      copy:
+        src: "{{ item }}"
+        dest: /var/www/html/repo
+      with_fileglob:
+      - lib/*
+
+    - name: create repository
+      shell: 'createrepo --database /var/www/html/repo/'
+
+    - name: update repository
+      shell: 'createrepo --update /var/www/html/repo/'
 
     - name: add a admin group
       group: name=admin state=present
@@ -34,7 +68,7 @@
         mode: 0700
       with_items:
       - "{{ users }}"
-    
+
     - name: create .ssh directory (root)
       file:
         path: /root/.ssh
@@ -50,7 +84,7 @@
         mode: 0700
       with_items:
       - "{{ users }}"
-    
+
     - name: install private key file to root
       copy:
         src: publickey/id_rsa
