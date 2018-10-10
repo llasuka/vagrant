@@ -1,5 +1,5 @@
 [remote]
 name=Remote Repo
-baseurl=http://workstation/repo
+baseurl=http://workstation.lab.example.com/repo
 gpgcheck=0
 priority=1

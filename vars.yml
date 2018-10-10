@@ -8,6 +8,7 @@ packages:
   - createrepo
   - firewalld
   - yum-plugin-priorities
+  - tree
 service:
   - firewalld
   - httpd

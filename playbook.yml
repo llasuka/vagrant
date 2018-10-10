@@ -12,13 +12,6 @@
         state: latest
       with_items: "{{ packages }}"
 
-    - name: start service
-      service:
-        name: "{{ item }}"
-        state: started
-        enabled: true
-      with_items: " {{ service }}"
-
     - name: add firewalld service
       firewalld:
         immediate: true
@@ -108,5 +101,38 @@
         regexp: '^%wheel\s'
         line: '%wheel ALL=(ALL) NOPASSWD: ALL'
 
+    - name: set deny fingerprint check
+      copy:
+        src: sshconfig/config
+        dest: /home/{{ item.name }}/.ssh/config
+        group: "admin"
+        owner: "{{ item.name }}"
+        mode: 0700
+      with_items:
+      - "{{ users }}"
+    
+    - name: set deny fingerprint check (root)
+      copy:
+        src: sshconfig/config
+        dest: /root/.ssh/config
+        group: root
+        owner: root
+        mode: 0700
 
+    - name: copy vimrc
+      copy:
+        src: tools/.vimrc
+        dest: /home/{{ item.name }}/.vimrc
+        group: "admin"
+        owner: "{{ item.name }}"
+        mode: 0700
+      with_items:
+      - "{{ users }}"
+        
+    - name: start service
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      with_items: " {{ service }}"
 

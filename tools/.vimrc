@@ -63,7 +63,7 @@
 
  " 個人設定
  " カラースキーマの設定
- colorscheme desert
+ " colorscheme desert
 
  " mouseをON
- set mouse=a
+ " set mouse=a
