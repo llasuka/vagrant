@@ -5,19 +5,11 @@
   - vars.yml
 
   tasks:
-
     - name: package install
       yum:
         name: "{{ item }}"
         state: latest
       with_items: "{{ packages }}"
-
-    - name: add firewalld service
-      firewalld:
-        immediate: true
-        permanent: true
-        service: http
-        state: enabled
 
     - name: create repo directory
       file:
@@ -110,7 +102,7 @@
         mode: 0700
       with_items:
       - "{{ users }}"
-    
+
     - name: set deny fingerprint check (root)
       copy:
         src: sshconfig/config
@@ -128,7 +120,7 @@
         mode: 0700
       with_items:
       - "{{ users }}"
-        
+
     - name: start service
       service:
         name: "{{ item }}"
@@ -136,3 +128,26 @@
         enabled: true
       with_items: " {{ service }}"
 
+    - name: add firewalld service
+      firewalld:
+        immediate: true
+        permanent: true
+        service: http
+        state: enabled
+
+    - name: add git repository
+      git:
+        repo: https://github.com/llasuka/ansible
+        dest: /home/{{ item.name }}/ansible
+      with_items:
+      - "{{ users }}"
+
+    - name: change owner and group
+      file:
+        dest: /home/{{ item.name }}/ansible
+        state: directory
+        owner: "{{ item.name }}"
+        group: "admin"
+        recurse: yes
+      with_items:
+      - "{{ users }}"
